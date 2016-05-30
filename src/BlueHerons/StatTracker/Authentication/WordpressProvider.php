@@ -18,6 +18,10 @@ class WordpressProvider implements IAuthenticationProvider {
     private $logger;
 
     public function __construct($base_url, Logger $logger) {
+        if (!defined('WORDPRESS_ROOT_PATH')) {
+            throw new Exception("Required configuration option WORDPRESS_ROOT_PATH not set");
+        }
+
         $this->base_url = $base_url;
         $this->logger = $logger;
 

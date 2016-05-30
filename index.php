@@ -5,6 +5,7 @@ require_once("vendor/autoload.php");
 
 use BlueHerons\StatTracker\Agent;
 use BlueHerons\StatTracker\StatTracker;
+use BlueHerons\StatTracker\Authentication\AuthResponse;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -55,6 +56,7 @@ $StatTracker->get('/{page}', function ($page) use ($StatTracker) {
             return $StatTracker->redirect("./");
         }
 	else if ($page == "authenticate") {
+            try {
 		switch ($_REQUEST['action']) {
 			case "login":
                                 $authResponse = $StatTracker->getAuthenticationProvider()->login($StatTracker);
@@ -76,6 +78,10 @@ $StatTracker->get('/{page}', function ($page) use ($StatTracker) {
 			default:
 				$StatTracker->abort(400, "Invalid authentication action");
 		}
+            }
+            catch (Exception $e) {
+                return $StatTracker->json(AuthResponse::error($e->getMessage()));
+            }
 	}
 	else {
 		$StatTracker->abort(404);

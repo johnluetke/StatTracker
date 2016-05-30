@@ -19,6 +19,10 @@ class GooglePlusProvider implements IAuthenticationProvider {
     private $plus;
 
     public function __construct($base_url, Logger $logger) {
+        if (!defined('GOOGLE_CLIENT_ID') || !defined('GOOGLE_CLIENT_SECRET')) {
+            throw new Exception("Required configuration options GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not set");
+        }
+
         $this->client = new Google_Client();
         $this->client->setClientId(GOOGLE_CLIENT_ID);
         $this->client->setClientSecret(GOOGLE_CLIENT_SECRET);

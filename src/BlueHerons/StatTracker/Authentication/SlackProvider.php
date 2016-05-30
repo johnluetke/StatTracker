@@ -23,6 +23,10 @@ class SlackProvider implements IAuthenticationProvider {
     const AUTHORIZE_URL = "https://slack.com/oauth/authorize";
 
     public function __construct($base_url, Logger $logger) {
+        if (!defined('SLACK_CLIENT_ID') || !defined('SLACK_CLIENT_SECRET')) {
+            throw new Exception("Required configuration options SLACK_CLIENT_ID or SLACK_CLIENT_SECRET not set");
+        }
+
         $interactor = new CurlInteractor;
         $interactor->setResponseFactory(new SlackResponseFactory);
         $this->client = new Commander('xoxp-no-token', $interactor);
@@ -133,7 +137,7 @@ class SlackProvider implements IAuthenticationProvider {
             setcookie($name, '', time()-1000);
             setcookie($name, '', time()-1000, '/');
         }
-        $this->client->execute("auth.revoke", []);
+        //$this->client->execute("auth.revoke", []);
         session_destroy();
         $response = AuthResponse::loggedOut();
         $this->logger->info(sprintf("%s logged out", $agent->name));
@@ -190,7 +194,7 @@ class SlackProvider implements IAuthenticationProvider {
             "client_id" => SLACK_CLIENT_ID,
             "scope" => $scopes,
             "redirect_uri" => sprintf("%s/authenticate?action=callback", $this->base_url),
-            "team" => SLACK_TEAM_ID
+            "team" => defined('SLACK_TEAM_ID') ? SLACK_TEAM_ID : ''
         ));
         return SlackProvider::AUTHORIZE_URL ."?" . $query;
     }
